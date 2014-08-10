@@ -1,0 +1,5 @@
+scrabble.Tile = function(){
+
+
+
+}
