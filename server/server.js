@@ -18,15 +18,28 @@ server.listen(serverPort, function() {});
 // create the server
 
 // var scrabble = require('./scrabble/scrabble.module.js');
-var scrabble = require('../common/scrabble/scrabble.js');
+// var scrabble = require('../common/scrabble/scrabble.js');
+require('../common/scrabble/scrabble.js');
 // var scrabble = require('./scrabble.js');
 
 
-console.log(scrabble);
+
+
+var MongoConnection = require('./database.js');
+
+var mongo = new MongoConnection();
+mongo.connect();
+
+var arraysDiff = function(array1, array2) {
+    return array1.filter(function(item) {
+        return array2.indexOf(item) < 0;
+    });
+};
+
+
+
 
 /* SOCKET */
-
-
 
 
 var socketExtended = function() {
@@ -202,7 +215,7 @@ var privateSocket = function() {
 
 
     that.onClose = function(connection) {
-        deleteUser(getUserFromConnection(connection));
+        // deleteUser(getUserFromConnection(connection));
     };
 
 
@@ -219,9 +232,9 @@ var privateSocket = function() {
     that.onUserMessage = function(event, callback) {
         that.on(event, function(connection, requestObject) {
             if (requestObject.username) {
-                callback(requestObject.username, requestObject.data);
+                callback(requestObject.username, requestObject.data, requestObject);
             } else {
-                that.send(connection, event, {
+                that.send(connection, 'auth', {
                     code: "UNAUTHORIZED",
                     text: 'Unauthorized call.'
                 });
@@ -236,20 +249,27 @@ var privateSocket = function() {
 
 
     that.on('user:register', function(connection, data) {
+
         var response;
+
         if (!data.username) {
+
             response = {
                 code: "USERNAME_NOT_SPECIFIED",
                 text: 'Username not specified.'
             }
             that.send(connection, 'user:register', response);
+
         } else if (userExists(data.username)) {
+
             response = {
                 code: "USERNAME_UNIQUE",
                 text: 'A user with the same username is already registered.'
             }
             that.send(connection, 'user:register', response);
+
         } else {
+
             addUser(data.username, connection);
             response = {
                 username: data.username,
@@ -258,10 +278,10 @@ var privateSocket = function() {
             }
             // that.send(connection, 'user:register', response);
             that.broadcast('user:register', response);
+
         }
-
-
     });
+
 
     that.onUserMessage('user:unregister', function(username, data) {
         deleteUser(username);
@@ -320,16 +340,30 @@ var GamesSocket = function() {
 
 
     that.onGameMessage = function(event, callback) {
-        that.on(event, function(connection, requestObject) {
+
+        // that.on(event, function(connection, requestObject) {
+        //     if (requestObject.gameId) {
+        //         callback(requestObject.gameId, requestObject.username, requestObject.data);
+        //     } else {
+        //         that.send(connection, {
+        //             code: "NO GAME SPECIFIED",
+        //             text: 'No game specified.'
+        //         });
+        //     }
+        // })
+
+
+        that.onUserMessage(event, function(username, data, requestObject) {
             if (requestObject.gameId) {
-                callback(requestObject.gameId, requestObject.username, requestObject.data);
+                callback(requestObject.gameId, username, data);
             } else {
-                that.send(connection, {
+                that.sendToUser(username, {
                     code: "NO GAME SPECIFIED",
                     text: 'No game specified.'
                 });
             }
         })
+
     }
 
 
@@ -374,8 +408,6 @@ var GamesServer = function() {
 
 
 
-
-
     var shuffle = function(array) {
         var currentIndex = array.length,
             temporaryValue, randomIndex;
@@ -397,13 +429,12 @@ var GamesServer = function() {
     }
 
 
-    var initGame = function(name, size, languagePack) {
+    var initGame = function(name, size, languagePackCode) {
         return {
             id: generateGameId(),
             name: name,
             size: size,
-            languagePack: languagePack,
-            state: GAME_WAITING_FOR_USERS
+            languagePackCode: languagePackCode
         };
     }
 
@@ -420,7 +451,7 @@ var GamesServer = function() {
                 });
 
                 if (game.totalRegistered() >= game.getSize()) {
-                    console.log('start....')
+                    console.log('start....');
 
                     game.users = shuffle(game.users);
 
@@ -433,7 +464,7 @@ var GamesServer = function() {
                     });
 
 
-                    game.giveTurn();
+                    game.setTurn();
                 }
             }
         }
@@ -475,6 +506,8 @@ var GamesServer = function() {
 
 
 
+
+    // REQUEST OF ALL GAMES LIST
     wss.on('game:all', function(connection, data) {
         wss.send(connection, 'game:all', {
             data: GamesManager.getRaw()
@@ -484,12 +517,19 @@ var GamesServer = function() {
 
 
 
+
+    // NEW GAME CREATE REQUEST
     wss.onUserMessage('game:new', function(username, data) {
 
-        var newGameRaw = initGame(data.name, data.players, data.languagePack);
+        var newGameRaw = initGame(data.name, data.players, data.languagePackCode);
+
+        console.log(newGameRaw, 'raw');
+
         var game = GamesManager.createGame(newGameRaw);
 
 
+
+        // Extend game with new helpoer functions 
         game.send = function(event, data, toUser, fromUser) {
 
             var content = {
@@ -511,13 +551,15 @@ var GamesServer = function() {
 
         game.turn = 0;
 
-        game.giveTurn = function() {
+        game.setTurn = function() {
             if (game.turn == game.playUsers.length - 1) {
                 game.turn = 0;
             } else {
                 game.turn++;
             }
             var username = game.playUsers[game.turn].username;
+
+            game.giveTurn(username);
 
             game.send('game:turn', {
                 username: username
@@ -528,7 +570,6 @@ var GamesServer = function() {
         // newGame.register(username);
 
 
-
         wss.broadcast('game:new', {
             username: username,
             data: newGameRaw
@@ -537,6 +578,11 @@ var GamesServer = function() {
         registerUserForGame(username, newGameRaw.id);
     });
 
+
+
+
+
+    // DELETE GAME REQUEST
     wss.onUserMessage('game:delete', function(username, data) {
 
         GamesManager.deleteGame(data.gameId);
@@ -550,12 +596,14 @@ var GamesServer = function() {
 
 
 
-
-
+    // REGISTER USER FOR A GAME REQUEST
     wss.onGameMessage('game:register', function(gameId, username) {
         registerUserForGame(username, gameId);
     });
 
+
+
+    // UNREGISTER A USER FROM GAME REQUEST
     wss.onGameMessage('game:unregister', function(gameId, username, data) {
         unregisterUserFromGame(username, gameId);
     });
@@ -564,10 +612,9 @@ var GamesServer = function() {
 
 
 
-
+    // NEW MOVE SUBMITTED FROM USER
     wss.onGameMessage('game:newmove', function(gameId, username, rawPlaceholders) {
         // check if is valid word
-
         var game = GamesManager.getGame(gameId);
 
         var results;
@@ -589,44 +636,80 @@ var GamesServer = function() {
 
             results = move.parse();
 
-            game.board.place(placeholders);
 
-            var bucketRemaining = game.bucket.getRemaining();
-
-            placeholders.forEach(function(placeholder) {
-                tiles.push(placeholder.getTile());
+            var wordsPlayed = [];
+            results.forEach(function(result) {
+                wordsPlayed.push(result.string);
             });
 
-            game.removeTiles(username, tiles);
+
+            mongo.findWords(wordsPlayed, game.languagePackCode, function(error, items) {
+
+                var wordsFound = [];
+                items.forEach(function(item) {
+                    wordsFound.push(item.word);
+                });
 
 
-            game.foldCounter = 0;
-
-            game.send('game:newmove', {
-                tilesRemaining: game.bucket.getRemaining(),
-                meta: results,
-                placeholders: move.getRaw()
-            }, null, username);
+                if (wordsFound.length === wordsPlayed.length) {
 
 
+                    game.placeSuccessfulMove(rawPlaceholders);
 
-            if (game.getUser(username).tiles.getRemaining() === 0 && bucketRemaining === 0) {
+                    var bucketRemaining = game.bucket.getRemaining();
 
-                game.stopUser(username);
+                    placeholders.forEach(function(placeholder) {
+                        tiles.push(placeholder.getTile());
+                    });
 
-                if (game.playUsers.length === 1) {
-                    game.finish(game.getUser(username));
-                    sendFinishMessage(game);
-                    return;
-                } else if (game.playUsers.length === 0) {
-                    game.finish(null);
-                    sendFinishMessage(game);
-                    return;
+                    game.removeTiles(username, tiles);
+
+
+                    game.foldCounter = 0;
+
+                    game.send('game:newmove', {
+                        tilesRemaining: game.bucket.getRemaining(),
+                        meta: results,
+                        placeholders: move.getRaw()
+                    }, null, username);
+
+
+
+                    if (game.getUser(username).tiles.getRemaining() === 0 && bucketRemaining === 0) {
+
+                        game.stopUser(username);
+
+                        if (game.playUsers.length === 1) {
+                            game.finish(game.getUser(username));
+                            sendFinishMessage(game);
+                            return;
+                        } else if (game.playUsers.length === 0) {
+                            game.finish(null);
+                            sendFinishMessage(game);
+                            return;
+                        }
+                    }
+
+                    game.send('game:tiles', game.sendTiles(username, game.getTilesFromBucket(placeholders.length)), username, username);
+                    game.setTurn();
+
+                } else {
+
+                    placeholders.forEach(function(placeholder) {
+                        placeholder.removeTile();
+                    });
+
+                    var notExistedWords = arraysDiff(wordsPlayed, wordsFound);
+                    console.log('WRONG MOVEEEE', notExistedWords);
+
+                    game.send('game:words_not_exist', notExistedWords, username, username);
                 }
-            }
 
-            game.send('game:tiles', game.sendTiles(username, game.getTilesFromBucket(placeholders.length)), username, username);
-            game.giveTurn();
+
+                console.log(wordsFound, 'ressss2222', wordsPlayed);
+
+
+            });
 
 
 
@@ -643,6 +726,8 @@ var GamesServer = function() {
     });
 
 
+
+    // USER FOLDED
     wss.onGameMessage('game:fold', function(gameId, username, tiles) {
 
         var game = GamesManager.getGame(gameId);
@@ -653,7 +738,7 @@ var GamesServer = function() {
 
 
 
-        if ((game.foldCounter++) >= 2 * game.totalRegistered()) {
+        if ((++game.foldCounter) >= 2 * game.totalPlaying()) {
             game.finish(game.getUser(username));
 
             sendFinishMessage(game);
@@ -675,11 +760,14 @@ var GamesServer = function() {
 
         game.bucket.pushTiles(tiles);
 
-        game.giveTurn();
+        game.setTurn();
 
     });
 
 
+
+
+    // USER QUITTED FROM GAME
     wss.onGameMessage('game:quit', function(gameId, username, tiles) {
 
         var game = GamesManager.getGame(gameId);
@@ -703,7 +791,6 @@ var GamesServer = function() {
         }
 
     });
-
 
 
 }

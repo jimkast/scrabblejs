@@ -86,4 +86,4 @@
     }
 
 
-})(typeof exports === 'undefined' ? window.scrabble : exports);
+})(typeof global === 'undefined' ? window.scrabble : global.scrabble);

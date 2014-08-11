@@ -23,7 +23,7 @@
             var arr = that.placeholders;
 
             var dir = scrabble.constants.DIR_HORIZONTAL;
-            if (arr.length > 1 && arr[0].y === arr[1].y) {
+            if (arr.length > 1 && arr[0].x === arr[1].x) {
                 dir = scrabble.constants.DIR_VERTICAL;
             }
             return dir;
@@ -156,13 +156,18 @@
             var words = [];
             var oppDir = oppositeDirection(that.direction);
 
+            var word = getWord(that.placeholders[0], that.direction);
+            if (word.getLength() > 1) {
+                words.push(word);
 
-            words.push(getWord(that.placeholders[0], that.direction));
+            }
 
             that.placeholders.forEach(function(placeholder) {
-                if (placeholder.hasPlacedNeighbours()) {
+                word = getWord(placeholder, oppDir);
+                if (word.getLength() > 1) {
                     words.push(getWord(placeholder, oppDir));
                 }
+
             });
 
             return words;
@@ -200,4 +205,4 @@
 
     }
 
-})(typeof exports === 'undefined' ? window.scrabble : exports);
+})(typeof global === 'undefined' ? window.scrabble : global.scrabble);

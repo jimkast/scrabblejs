@@ -47,7 +47,7 @@ app.service('GameInterface', ['GamesSocket', 'GamesManagerInterface',
 
         GamesSocket.onGameMessage('game:newmove', function(gameId, username, move) {
             var game = GamesManagerInterface.GamesManager.getGame(gameId);
-            game.placeSuccessfulMove(username, move);
+            game.placeSuccessfulMove(move.placeholders);
 
             if (game.onNewMove) {
                 game.onNewMove(username, move);
@@ -80,6 +80,16 @@ app.service('GameInterface', ['GamesSocket', 'GamesManagerInterface',
 
             if (game.onTilesGet) {
                 game.onTilesGet(username, tiles);
+            }
+        });
+
+
+        GamesSocket.onGameMessage('game:words_not_exist', function(gameId, username, notExistedWords) {
+            var game = GamesManagerInterface.GamesManager.getGame(gameId);
+            alert('WORDS DON"T EXIST: ' + notExistedWords)
+
+            if (game.onNonExistedWords) {
+                game.onNonExistedWords(username, tiles);
             }
         });
 

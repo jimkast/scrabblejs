@@ -1,6 +1,11 @@
+global.scrabble = {};
+
 module.exports = {
 
+    utilities: require('./utilities/utilities.js'),
+
     constants: require('./constants/constants').constants,
+    langPacks: require('./language-packs/el.js'),
 
     Player: require('./classes/Player').Player,
 

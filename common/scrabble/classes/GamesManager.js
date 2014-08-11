@@ -1,5 +1,6 @@
 (function(scrabble) {
 
+
     scrabble.GamesManager = function() {
 
         var GAME_WAITING_FOR_USERS = 1;
@@ -98,9 +99,8 @@
 
 
         that.createGame = function(game) {
-            var newGame = new scrabble.Game(game.id, game.name, game.size, game.languagePack, game);
+            var newGame = new scrabble.Game(game);
             that.games[game.id] = newGame;
-            console.log(that.games, game, 'gameeeeeee');
 
 
             that.gamesArray.push(newGame);
@@ -118,7 +118,6 @@
 
 
         that.registerUserForGame = function(username, gameId) {
-            console.log(that.games, username, gameId, 'registerUserForGame')
             return that.getGame(gameId).registerUser(username);
         }
 
@@ -142,4 +141,4 @@
 
     }
 
-})(typeof exports === 'undefined' ? window.scrabble : exports);
+})(typeof global === 'undefined' ? window.scrabble : global.scrabble);

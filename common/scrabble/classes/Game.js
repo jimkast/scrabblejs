@@ -1,6 +1,9 @@
 (function(scrabble) {
 
-    scrabble.Game = function(id, name, size, languagePackCode, currentState, currentUser) {
+    scrabble.Game = function(currentState) {
+
+
+
 
         var that = this;
 
@@ -14,31 +17,30 @@
 
         that.foldCounter = 0;
 
-        var currentState = currentState || {};
-
-        that.id = id;
-        that.name = name;
-        that.users = currentState.users || [];
-        that.state = GAME_WAITING_FOR_USERS;
-        that.history = currentState.state || currentState.history || [];
-        that.size = parseInt(size);
-        that.languagePack = scrabble.langPacks[languagePackCode];
-        that.winnerUser = currentState.winner || {};
-        that.bucketRemaining = currentState.bucketRemaining || 0;
 
 
-        console.log(currentState.users, '345tewr4tertedrtgdrgt');
+        var options = {
+            id: 1,
+            name: 'noname',
+            size: 1,
+            languagePackCode: 'el',
+            state: GAME_WAITING_FOR_USERS,
+            users: [],
+            playUsers: [],
+            history: [],
+            winnerUser: {},
+            bucketRemaining: 0,
+            registered: false
+        }
 
-        // if (currentState.users && currentState.users.length) {
 
-        //     that.users.forEach(function(user, index) {
-        //         console.log(currentState.users[index].tiles, 'tileslisrrrrrrrr')
-        //         var tilesList = new scrabble.tilesList();
-        //         tilesList.pushTiles(currentState.users[index].tiles);
-        //         user.tiles = tilesList;
-        //     });
+        extend(options, currentState);
+        extend(that, options);
 
-        // }
+
+        that.size = parseInt(that.size);
+        that.languagePack = scrabble.langPacks[that.languagePackCode];
+
 
 
 
@@ -60,11 +62,6 @@
                 return user.username === username;
             })
         }
-
-        if (currentUser) {
-            that.registered = that.userIsPlaying(currentUser);
-        }
-
 
 
         that.setBucketRemaining = function(remaining) {
@@ -90,6 +87,11 @@
 
         that.totalRegistered = function() {
             return that.users.length;
+        }
+
+
+        that.totalPlaying = function() {
+            return that.playUsers.length;
         }
 
 
@@ -195,9 +197,6 @@
 
             if (winner) {
                 that.winnerUser = winner;
-                console.log(that.id + ' : game has ended, winner: ', winner);
-            } else {
-                console.log('No winner for this game ');
             }
 
         }
@@ -219,7 +218,6 @@
 
 
         that.sendTiles = function(username, newTiles) {
-            console.log(that.users, 'SEND TILESSSSSSSSS', username)
             that.getUser(username).tiles.pushTiles(newTiles);
             return newTiles;
         }
@@ -277,19 +275,19 @@
         }
 
 
-        that.placeSuccessfulMove = function(username, _move) {
-            console.log(_move)
+        that.placeSuccessfulMove = function(rawPlaceholders) {
             var placeholders = [];
 
-            _move.placeholders.forEach(function(placeholder) {
+            rawPlaceholders.forEach(function(placeholder) {
                 placeholders.push(that.board.get(placeholder.x, placeholder.y).receiveTile(placeholder.tile));
+
                 // placeholders.push(new scrabble.Placeholder(placeholder.square, placeholder.x, placeholder.y, placeholder.tile));
             });
 
             var move = new scrabble.Move(placeholders);
 
 
-            var results = move.parse();
+            // var results = move.parse();
 
             that.board.place(placeholders);
 
@@ -321,20 +319,37 @@
         }
 
 
-        that.getRaw = function() {
+        that.getRaw = function(userFilter) {
+
+            var filteredUsers;
+
+            if (userFilter) {
+                filteredUsers = [];
+                that.users.forEach(function(user, index) {
+                    filteredUsers.push(extend({}, user));
+                    var emptyTilesList = new scrabble.tilesList();
+                    filteredUsers[index].tiles = emptyTilesList;
+                });
+            } else {
+                filteredUsers = that.users;
+            }
+
             return {
                 id: that.id,
                 name: that.name,
-                users: that.users,
+                users: filteredUsers,
+                playUsers: that.playUsers,
                 turn: that.turn,
                 size: that.size,
                 state: that.state,
                 history: that.history,
-                languagePack: languagePackCode,
-                winner: that.winnerUser
+                languagePack: that.languagePackCode,
+                winnerUser: that.winnerUser,
+                bucketRemaining: that.bucketRemaining,
+
             }
         }
     }
 
 
-})(typeof exports === 'undefined' ? window.scrabble : exports);
+})(typeof global === 'undefined' ? window.scrabble : global.scrabble);

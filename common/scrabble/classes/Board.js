@@ -523,7 +523,7 @@
                 var leftPlaceholder = null;
                 row.forEach(function(column, colIndex) {
                     var square = squareTypes[mapSquareType(column.type)];
-                    var placeholder = new scrabble.BoardPlaceholder(square, null, rowIndex, colIndex);
+                    var placeholder = new scrabble.BoardPlaceholder(square, null, colIndex, rowIndex);
 
                     if (rowIndex > 0) {
                         placeholder.top = topRow[colIndex];
@@ -555,11 +555,10 @@
 
 
         this.get = function(x, y) {
-            return this.data[x][y];
+            return this.data[y][x];
         }
 
         this.place = function(placeholders) {
-            console.log('--------------- place ------------- ', placeholders);
             placeholders.forEach(function(placeholder) {
                 that.get(placeholder.x, placeholder.y).receiveTile(placeholder.tile).placeTile();
             });
@@ -585,4 +584,4 @@
 
 
 
-})(typeof exports === 'undefined' ? window.scrabble : exports);
+})(typeof global === 'undefined' ? window.scrabble : global.scrabble);

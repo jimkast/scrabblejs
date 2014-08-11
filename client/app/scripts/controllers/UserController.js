@@ -4,11 +4,6 @@ app.controller('UserController', ['$scope', 'UserInterface', 'UserManagement', '
     function($scope, UserInterface, UserManagement, GamesManagerInterface) {
 
 
-        // new GamesManager()
-
-
-
-
 
         $scope.game = {};
 
@@ -35,7 +30,6 @@ app.controller('UserController', ['$scope', 'UserInterface', 'UserManagement', '
         }
 
         $scope.me = UserManagement.me();
-
 
 
 
@@ -108,12 +102,6 @@ app.controller('UserController', ['$scope', 'UserInterface', 'UserManagement', '
 
 
 
-
-        
-
-
-
-
         UserInterface.ready(function() {
 
             UserInterface.getAllUsers();
@@ -123,160 +111,6 @@ app.controller('UserController', ['$scope', 'UserInterface', 'UserManagement', '
 
 
 
-
-
-
-
-
-        /*
-        $scope.me = UserService.getUser();
-
-
-
-
-        $scope.register = function(username) {
-            UserService.register(username);
-        }
-
-        UserService.onRegistration(function(user) {
-            console.log('SCOPE: got successful registration for user ' + user);
-            // $scope.me = user;
-            $scope.usersList.push(user);
-            $scope.$apply();
-        });
-
-
-
-
-        $scope.unregister = function() {
-            UserService.unregister();
-        }
-
-        UserService.onUnregistration(function(user) {
-            console.log('SCOPE: got successful unregistration for user ' + user);
-            $scope.usersList.splice($scope.usersList.indexOf(user), 1);
-            $scope.$apply();
-        });
-
-
-
-        UserService.onUsersAll(function(users) {
-            $scope.usersList = users;
-            $scope.selectedUser = users[0];
-            $scope.$apply();
-            console.log(users, 'SCOPE: All Users: ');
-        });
-
-
-
-
-
-
-
-
-
-        var findGame = function(id) {
-            var filteredGames = $scope.gamesList.filter(function(game) {
-                return game.id === id;
-            });
-            if (filteredGames.length > 0) {
-                return filteredGames[0];
-            }
-        }
-
-
-
-        $scope.createGame = function(name, totalPlayers, languagePack) {
-            UserService.createGame(name, totalPlayers, languagePack);
-        }
-
-        UserService.onGameCreation(function(game, username) {
-            console.log('SCOPE: User ' + username + ' has created a game with id: ' + game.id);
-            $scope.gamesList.push(game);
-
-            if (UserService.isMe(username)) {
-                $scope.selectedGame = game.id;
-            }
-
-            $scope.$apply();
-        });
-
-
-
-
-
-        $scope.registerForGame = function(gameId) {
-            UserService.registerForGame(gameId);
-        }
-
-        UserService.onUserRegistration(function(gameId, username) {
-            console.log('SCOPE: User ' + username + ' has registered for game with id: ' + gameId);
-            findGame(gameId).users.push(username);
-            if (UserService.isMe(username)) {
-                findGame(gameId).registered = true;
-            }
-            $scope.$apply();
-        });
-
-
-
-
-        $scope.unregisterFromGame = function(gameId) {
-            UserService.unregisterFromGame(gameId);
-        }
-
-        UserService.onUserUnregistration(function(gameId, username) {
-            console.log('SCOPE: User ' + username + ' has unregistered from game with id: ' + gameId);
-            findGame(gameId).users.splice(findGame(gameId).users.indexOf(username));
-            if (UserService.isMe(username)) {
-                findGame(gameId).registered = false;
-            }
-            $scope.$apply();
-        });
-
-
-
-
-
-        $scope.deleteGame = function(gameId) {
-            UserService.deleteGame(gameId);
-        }
-
-        UserService.onGameDeletion(function(gameId, username) {
-            console.log('SCOPE: User ' + username + ' has deleted a game with id: ' + gameId);
-            var game = findGame(gameId);
-            var pos = $scope.gamesList.indexOf(game);
-            $scope.gamesList.splice(pos, 1);
-            $scope.selectedGame = $scope.gamesList[pos];
-            $scope.$apply();
-        });
-
-
-
-
-
-        UserService.onGamesAll(function(games) {
-            if (games && games.length) {
-                $scope.gamesList = games;
-                $scope.selectedGame = games[0].id;
-                $scope.$apply();
-            }
-            console.log(games, 'SCOPE: All Games: ');
-        });
-
-
-
-
-
-        UserService.ready(function() {
-
-            UserService.getAllUsers();
-            UserService.getAllGames();
-
-        });
-
-
-*/
 
     }
 ]);

@@ -2,8 +2,11 @@
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
 <!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
-  <head>
+<!--[if gt IE 8]><!-->
+<html class="no-js">
+<!--<![endif]-->
+
+<head>
     <meta charset="utf-8">
     <title>Scrabble</title>
     <meta name="description" content="">
@@ -16,82 +19,212 @@
     <!-- build:css({.tmp,app}) styles/main.css -->
     <link rel="stylesheet" href="styles/style.css">
     <!-- endbuild -->
-  </head>
-  <body ng-app="ngScrabbleApp">
+</head>
+
+<body ng-app="ngScrabbleApp">
     <!--[if lt IE 7]>
       <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
 
 
+    <div class="" ng-controller="UserController">
 
-    <div class="wrapper" ng-controller="boardCtrl">
-    
-        <div id="#header">
-            <div class="nav">
-                <ul>
-                    
-                </ul>
+
+        <div style="float:left;width:40%">
+            <h2>USERS</h2>
+            <div ng-hide="me.registered">
+                <form ng-submit="register(user.username)">
+                    Sign Up:
+                    <br>
+                    <label>Username:</label>
+                    <input type="text" ng-model="user.username" />
+                    <button type="submit">SIGN UP</button>
+                </form>
             </div>
+
+            <div ng-show="me.registered">
+                Signed in as user: <b>{{user.username}}</b> 
+                <button type="button" ng-click="unregister()">UNREGISTER</button>
+            </div>
+
+
+            <h4>All Users Online</h4>
+            <ul>
+                <li ng-repeat="user in usersList">{{user}}</li>
+            </ul>
         </div>
-    
+
+        <br>
+        <br>
+
+        <div style="float:right;width:40%">
+            <h2>GAMES</h2>
+            <div ng-show="me.registered">
+                <form ng-submit="createGame(game.name, game.players, game.pack)">
+
+                    <label>Game name:</label>
+                    <input type="text" ng-model="game.name" />
+
+                    <br />
+
+                    <label>Total Players:</label>
+                    <select ng-model="game.players">
+                        <option>1</option>
+                        <option>2</option>
+                        <option>3</option>
+                        <option>4</option>
+                    </select>
+
+                    <br />
+
+                    <label>Language Pack:</label>
+                    <select ng-options="code as name for (code, name) in languagePacks" ng-model="game.pack">
+
+                    </select>
+
+                    <br />
+                    <br />
+                    <button type="submit">NEW GAME</button>
+                </form>
+            </div>
+
+            <br>
+            <br>
+
+            <form>
 
 
 
-        <div class="group board" id="board">
-            <div class="row" ng-repeat="row in rowsList">
-                <div class="s {{(placeholderSelected == col || col.checking ? 'active' : '')}} {{holders[col.type].class}}" data-coords="{{$parent.$index}},{{$index}}" ng-repeat="col in row" ng-click="placeholderSelect(col, $parent.$index, $index)" ng-dblclick="addTile()" ng-init="col.x=$index;col.y=$parent.$index">
-                    <div class="{{col.tile ? 'l' : ''}} {{col.tile.class}}">{{col.tile.letter}}</div>
+
+                <!--               <select size="20" ng-options="game.id as game.name for game in gamesList" ng-model="selectedGame" ng-change="selectGame(selectedGame)">
+                </select>
+
+ -->
+                <select size="20" ng-model="selectedGame" ng-change="selectGame(selectedGame)">
+
+
+                    <optgroup label="OPEN FOR REGISTRATION">
+                        <option ng-repeat="game in gamesList | filter: {state: 1}" value="{{game.id}}">{{game.name}}{{game.state}}</option>
+                    </optgroup>
+
+                    <optgroup label="NOW PLAYING">
+                        <option ng-repeat="game in gamesList | filter: {state: 2}" value="{{game.id}}" disabled>{{game.name}}{{game.state}}</option>
+                    </optgroup>
+
+                    <optgroup label="FINISHED">
+                        <option ng-repeat="game in gamesList | filter: {state: 3}" value="{{game.id}}" disabled>{{game.name}}{{game.state}}</option>
+                    </optgroup>
+                </select>
+
+                <ul>
+
+                    <li ng-repeat="game in gamesList"><b>{{game.name}} {{game.registered}}</b> :
+                        <br />{{game.users}}</li>
+                </ul>
+
+
+
+
+                <div ng-show="me.registered">
+                    <button type="button" ng-click="registerForGame(selectedGame)" ng-hide="selectedGame.registered">REGISTER FOR GAME</button>
+                    <button type="button" ng-click="unregisterFromGame(selectedGame)">UNREGISTER</button>
+                    <button type="button" ng-click="deleteGame(selectedGame)">DELETE GAME</button>
+                </div>
+
+            </form>
+        </div>
+
+
+        <div style="clear:both"></div>
+
+
+        <div id="tabs">
+            <div class="tab" ng-controller="GameController" ng-repeat="game in gamesList | filter: {registered:true}" ng-init="game=game">
+                Game Information:
+                <div class="wrapper">
+
+                    <div id="#header">
+                        <div class="nav">
+                            <ul>
+
+                            </ul>
+                        </div>
+                    </div>
+
+
+                    <div class="group board" id="board">
+                        <div class="row" ng-repeat="row in board.data">
+                            <div class="s {{col.square.class}} {{(placeholderSelected == col || col.checking) ? 'active' : ''}}" data-coords="{{$parent.$index}},{{$index}}" ng-repeat="col in row" ng-click="placeholderSelect(col)" ng-dblclick="placeSelected()">
+                                <div class="{{col.tile ? 'l' : ''}} {{col.tile.class}}">{{col.tile.letter}}</div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
+
+                    <div class="board">
+
+                        <div>
+                            <button ng-click="placeSelected()">ADD</button>
+                            <button ng-click="unplaceSelected()">REMOVE</button>
+                            <button ng-click="report()">REPORT</button>
+                            <button ng-click="unplaceAll()">REMOVE ALL</button>
+                        </div>
+
+
+                        <ul class="group ltr-holder" id="panel" ui-sortable ng-model="tilesList.tiles" style="background-color:{{foldEnabled ? 'pink' : ''}}">
+                            <li class="l play {{tile.class}}" ng-class="{active:tile.selected}" data-tileid="{{tile.id}}" ng-repeat="tile in tilesList.tiles" ng-click="tileSelect(tile)" ng-dblclick="addTile()">
+                                {{tile.letter}}
+                            </li>
+                        </ul>
+
+
+                        <div class="button" ng-click="foldStart()" ng-show="myTurn && !foldEnabled">FOLD</div>
+                        <div class="button" ng-click="submitMove()" ng-show="myTurn && !foldEnabled">SUBMIT</div>
+
+                        <div class="button" ng-click="foldUndo()" ng-show="myTurn && foldEnabled">UNDO</div>
+                        <div class="button" ng-click="fold()" ng-show="myTurn && foldEnabled">DROP LETTERS</div>
+
+                        <div class="button" ng-click="quit()">QUIT</div>
+
+                        <div>
+                            <div class="{{tileSelected.class}}" data-tileid="{{tileSelected.id}}">{{tileSelected.letter}}</div>
+                        </div>
+
+
+
+                        <div>
+                            <div class="{{tileSelected.class}}" data-tileid="{{tileSelected.id}}">{{curMove.tile}} - {{curMove.row}} - - {{curMove.col}}</div>
+                        </div>
+
+                    </div>
+
+                    <!-- <pre>{{bucket}}</pre> -->
+                    <ul class="bucket">
+                        <span ng-repeat="tile in bucket.tiles track by $index">
+                            {{tile.letter}}
+                        </span>
+                    </ul>
+
+                    <div id="footer">
+
+                    </div>
+
                 </div>
             </div>
-        </div>  
-    
-
-
-
-
-        <div class="board">
-
-            <div>
-                <button ng-click="addTile()">ADD</button>
-                <button ng-click="removeTile()">REMOVE</button>
-                <button ng-click="report()">REPORT</button>
-            </div>
-
-            <ul class="group ltr-holder" id="panel" ui-sortable ng-model="tilesList">
-                <li class="l play {{tile.class}} {{(tileSelected==$index ? 'active' : '')}}" data-tileid="{{tile.id}}" ng-repeat="tile in tilesList" ng-click="tileSelect($index)" ng-dblclick="addTile()">
-                    {{tile.letter}}
-                </li>
-            </ul>
-            
-            <div class="button" id="submit" ng-click="">SUBMIT</div>
-            <div class="button" ng-click="parseMove()">Find</div>
-
-
-            <div>
-                 <div class="{{tileSelected.class}}" data-tileid="{{tileSelected.id}}">{{tileSelected.letter}}</div>
-            </div>
-
-
-            
-            <div>
-                 <div class="{{tileSelected.class}}" data-tileid="{{tileSelected.id}}">{{curMove.tile}} - {{curMove.row}} - - {{curMove.col}}</div>
-            </div>
-            
         </div>
 
-
-
-    
-        <div id="footer">
-            
-        </div>
-    
     </div>
-    
 
     <!-- Add your site or application content here -->
 
     <div class="container" ng-view=""></div>
+
+
+
+
 
 
 
@@ -100,34 +233,67 @@
     <script src="bower_components/json3/lib/json3.min.js"></script>
     <![endif]-->
 
+
+    <script>
+    var scrabble = {};
+    </script>
+
+
     <!-- build:js scripts/vendor.js -->
     <!-- bower:js -->
     <script src="bower_components/jquery/dist/jquery.js"></script>
     <script src="bower_components/angular/angular.js"></script>
-    <script src="bower_components/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/affix.js"></script>
-    <script src="bower_components/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/alert.js"></script>
-    <script src="bower_components/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/button.js"></script>
-    <script src="bower_components/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/carousel.js"></script>
-    <script src="bower_components/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/collapse.js"></script>
-    <script src="bower_components/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/dropdown.js"></script>
-    <script src="bower_components/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/tab.js"></script>
-    <script src="bower_components/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/transition.js"></script>
-    <script src="bower_components/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/scrollspy.js"></script>
-    <script src="bower_components/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/modal.js"></script>
-    <script src="bower_components/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/tooltip.js"></script>
-    <script src="bower_components/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/popover.js"></script>
     <script src="bower_components/angular-resource/angular-resource.js"></script>
     <script src="bower_components/angular-cookies/angular-cookies.js"></script>
     <script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
     <script src="bower_components/angular-route/angular-route.js"></script>
-    <script src="bower_components/jquery-ui/ui/jquery-ui.js"></script>
+    <script src="bower_components/jquery-ui/jquery-ui.js"></script>
     <script src="bower_components/angular-ui-sortable/sortable.js"></script>
     <!-- endbower -->
     <!-- endbuild -->
 
-        <!-- build:js({.tmp,app}) scripts/scripts.js -->
-        <script src="scripts/app.js"></script>
-        <script src="scripts/controllers/main.js"></script>
-        <!-- endbuild -->
+
+
+
+    <!-- build:js({.tmp,app}) scripts/scripts.js -->
+    <script src="../../common/scrabble/utilities/utilities.js"></script>
+    <script src="../../common/scrabble/constants/constants.js"></script>
+
+    <script src="../../common/scrabble/language-packs/el.js"></script>
+
+    <script src="../../common/scrabble/classes/Board.js"></script>
+    <script src="../../common/scrabble/classes/TilesList.js"></script>
+    <script src="../../common/scrabble/classes/Bucket.js"></script>
+
+    <script src="../../common/scrabble/classes/Placeholder.js"></script>
+    <script src="../../common/scrabble/classes/BoardPlaceholder.js"></script>
+
+    <script src="../../common/scrabble/classes/Square.js"></script>
+    <script src="../../common/scrabble/classes/Tile.js"></script>
+    <script src="../../common/scrabble/classes/Word.js"></script>
+    <script src="../../common/scrabble/classes/Move.js"></script>
+    <script src="../../common/scrabble/classes/Game.js"></script>
+    <script src="../../common/scrabble/classes/GamesManager.js"></script>
+    <!-- endbuild -->
+
+
+
+    <!-- build:js({.tmp,app}) scripts/scripts.js -->
+    <script src="scripts/app.js"></script>
+
+    <script src="scripts/services/SocketService.js"></script>
+    <script src="scripts/services/UserSocket.js"></script>
+    <script src="scripts/services/UserInterface.js"></script>
+    <script src="scripts/services/UserManagement.js"></script>
+    <script src="scripts/services/GamesSocket.js"></script>
+    <script src="scripts/services/GameInterface.js"></script>
+    <script src="scripts/services/GamesManagerInterface.js"></script>
+
+    <script src="scripts/controllers/UserController.js"></script>
+    <script src="scripts/controllers/GameController.js"></script>
+    <!-- endbuild -->
+
+
 </body>
+
 </html>

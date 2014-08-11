@@ -25,21 +25,20 @@ app.service('GamesManagerInterface', ['GamesSocket',
         }
 
         GamesSocket.onGameMessage('game:all', function(gameId, username, games) {
-            console.log(games, 'game:alllllllllllllll')
+            console.log(games, 'game:alllll')
             that.GamesManager.setGames(games);
 
             that.onAllGames();
-
         });
 
 
 
 
-        that.createGame = function(name, players, languagePack, callback) {
+        that.createGame = function(name, players, languagePackCode, callback) {
             GamesSocket.send('game:new', null, {
                 name: name,
                 players: players,
-                languagePack: languagePack
+                languagePackCode: languagePackCode
             });
         }
 
