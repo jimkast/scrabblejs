@@ -38,13 +38,17 @@ function dbConnection() {
 
 
 
-    that.connect = function() {
+    that.connect = function(callback) {
         MongoClient.connect(connectionString, function(err, database) {
             if (err) throw database;
 
             that.dbReady = true;
             that.db = database;
             console.log('Connected to database...');
+
+            if(typeof callback === 'function'){
+                callback();
+            }
 
         });
     }

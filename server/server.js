@@ -1,21 +1,30 @@
 'use strict';
 
-
 var serverPort = 3000;
 
-var http = require('http');
+var express = require('express');
+
+var server = express();
+
+
+
+
+// var http = require('http');
+
+// var server = http.createServer(function(request, response) {
+//     // process HTTP request. Since we're writing just WebSockets server
+//     // we don't have to implement anything.
+// });
+// server.listen(serverPort, function() {});
+
+// // create the server
 
 
 
 
 
-var server = http.createServer(function(request, response) {
-    // process HTTP request. Since we're writing just WebSockets server
-    // we don't have to implement anything.
-});
-server.listen(serverPort, function() {});
 
-// create the server
+
 
 // var scrabble = require('./scrabble/scrabble.module.js');
 // var scrabble = require('../common/scrabble/scrabble.js');
@@ -23,18 +32,19 @@ require('../common/scrabble/scrabble.js');
 // var scrabble = require('./scrabble.js');
 
 
-
-
 var MongoConnection = require('./database.js');
 
 var mongo = new MongoConnection();
-mongo.connect();
 
 var arraysDiff = function(array1, array2) {
     return array1.filter(function(item) {
         return array2.indexOf(item) < 0;
     });
 };
+
+
+
+
 
 
 
@@ -241,6 +251,11 @@ var privateSocket = function() {
             }
         })
     }
+
+
+
+
+
 
 
     that.on('user:all', function(connection, data) {
@@ -706,7 +721,7 @@ var GamesServer = function() {
                 }
 
 
-                console.log(wordsFound, 'ressss2222', wordsPlayed);
+                console.log(wordsFound, ' --- words test results --- ', wordsPlayed);
 
 
             });
@@ -719,9 +734,9 @@ var GamesServer = function() {
                 placeholder.removeTile();
             });
 
-            wss.gameId(gameId, 'game:word_not_exists', {
+            game.send('game:invalid_move', {
                 placeholders: move.getRaw()
-            }, username);
+            }, username, username);
         }
     });
 
@@ -798,12 +813,14 @@ var GamesServer = function() {
 
 
 
-var ServerInterface = function() {
-
-}
 
 
 
+server.listen(serverPort);
 
-var manager = new GamesServer();
-manager.listen(server, serverPort);
+mongo.connect(function() {
+    
+    var manager = new GamesServer();
+    manager.listen(server, serverPort);
+
+});
