@@ -11,8 +11,14 @@ app.service('UserInterface', ['UserSocket', 'UserManagement',
         that.onUnregistration = function() {};
 
 
+        that.login = function() {
+            UserSocket.setUser({
+                username: UserManagement.login()
+            });
+        }
 
-        that.register = function(username, callback) {
+
+        that.register = function(username) {
             UserSocket.setUser({
                 username: username
             });
@@ -25,11 +31,13 @@ app.service('UserInterface', ['UserSocket', 'UserManagement',
             if (data.code === true) {
                 console.log('User ' + data.username + ' have successfully registered.');
 
-                if (UserManagement.isMe(data.username)) {
-                    UserManagement.login();
-                } else {
-                    UserManagement.addUser(data.username);
-                }
+                // if (UserManagement.isMe(data.username)) {
+                //     UserManagement.login();
+                // } else {
+                //     UserManagement.addUser(data.username);
+                // }
+
+                UserManagement.addUser(data.username);
 
                 that.onRegistration(data.username);
 
@@ -46,7 +54,7 @@ app.service('UserInterface', ['UserSocket', 'UserManagement',
 
 
 
-        that.unregister = function(callback) {
+        that.unregister = function() {
             UserSocket.send('user:unregister');
 
         }
@@ -71,7 +79,7 @@ app.service('UserInterface', ['UserSocket', 'UserManagement',
 
 
 
-        that.getAllUsers = function(callback) {
+        that.getAllUsers = function() {
             UserSocket.send('user:all');
 
         }

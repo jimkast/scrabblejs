@@ -1,7 +1,7 @@
 'use strict';
 
-app.service('GamesManagerInterface', ['GamesSocket',
-    function(GamesSocket) {
+app.service('GamesManagerInterface', ['GamesSocket', 'UserManagement',
+    function(GamesSocket, UserManagement) {
 
         var that = this;
 
@@ -12,29 +12,39 @@ app.service('GamesManagerInterface', ['GamesSocket',
         // }
 
 
-        that.onAllGames = function(){};
-        that.onCreate = function(){};
-        that.onDelete = function(){};
-        that.onUserRegistration = function(){};
-        that.onUserUnregistration = function(){};
+        that.onAllGames = function() {};
+        that.onCreate = function() {};
+        that.onDelete = function() {};
+        that.onUserRegistration = function() {};
+        that.onUserUnregistration = function() {};
 
 
 
-        that.getAllGames = function(callback) {
+        that.update = function() {
+            that.GamesManager.gamesArray.forEach(function(game) {
+                var me = game.getUser(UserManagement.me.username);
+                if (me){
+                    game.registered = true;
+                }
+            })
+        }
+
+        that.getAllGames = function() {
             GamesSocket.send('game:all');
         }
 
         GamesSocket.onGameMessage('game:all', function(gameId, username, games) {
-            console.log(games, 'game:alllll')
-            that.GamesManager.setGames(games);
+            console.log(games, 'game:alllll');
 
+            that.GamesManager.setGames(games);
+            that.update();
             that.onAllGames();
         });
 
 
 
 
-        that.createGame = function(name, players, languagePackCode, callback) {
+        that.createGame = function(name, players, languagePackCode) {
             GamesSocket.send('game:new', null, {
                 name: name,
                 players: players,
@@ -54,7 +64,7 @@ app.service('GamesManagerInterface', ['GamesSocket',
 
 
 
-        that.deleteGame = function(gameId, callback) {
+        that.deleteGame = function(gameId) {
             GamesSocket.send('game:delete', gameId);
         }
 
@@ -68,7 +78,7 @@ app.service('GamesManagerInterface', ['GamesSocket',
 
 
 
-        that.registerForGame = function(gameId, callback) {
+        that.registerForGame = function(gameId) {
             GamesSocket.send('game:register', gameId);
         }
 
@@ -83,7 +93,7 @@ app.service('GamesManagerInterface', ['GamesSocket',
 
 
 
-        that.unregisterFromGame = function(gameId, callback) {
+        that.unregisterFromGame = function(gameId) {
             GamesSocket.send('game:unregister', gameId);
 
         }

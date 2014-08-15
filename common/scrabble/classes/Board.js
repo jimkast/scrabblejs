@@ -482,8 +482,10 @@
                 }, {
                     type: 4
                 }]
-            ]
+            ],
+            playLettersLength: 7
         };
+
 
 
         var squareTypes = [

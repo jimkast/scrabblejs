@@ -7,6 +7,12 @@
 
         that.placeholders = placeholders;
         that.points = 0;
+        
+        var calculationCallback;
+
+        that.setCalculationCallback = function(callback){
+            calculationCallback = callback;
+        }
 
 
         that.getLength = function() {
@@ -24,7 +30,7 @@
         }
 
 
-        var parseWord = function() {
+        var parseWord = function(wordCallback) {
 
             var index = 0;
             var pointsCounter = 0;
@@ -75,14 +81,26 @@
 
             });
 
-
+            if (typeof calculationCallback === 'function') {
+                wordCallbackFunctions.push(calculationCallback);
+            }
 
             if (wordCallbackFunctions.length > 0) {
+                calcStr = ' (' + calcStr + ') ';
+                wordCallbackFunctions.forEach(function(func) {
+                    var funcResult = func(pointsCounter);
+                    pointsCounter = funcResult.points;
+                    calcStr += funcResult.string;
+                });
+            }
+
+
+            if (typeof wordCallback === 'function') {
                 calcStr = '(' + calcStr + ')';
                 wordCallbackFunctions.forEach(function(func) {
                     var funcResult = func(pointsCounter);
                     pointsCounter = funcResult.points;
-                    calcStr += ' ' + funcResult.string + ' ';
+                    calcStr += funcResult.string;
                 });
             }
 
@@ -95,9 +113,9 @@
         }
 
 
-        that.parse = function() {
+        that.parse = function(wordCallback) {
             // Check if word exists
-            var results = parseWord();
+            var results = parseWord(wordCallback);
             that.results = results;
             that.points = results.points;
             return results;

@@ -3,11 +3,7 @@
     scrabble.Game = function(currentState) {
 
 
-
-
         var that = this;
-
-        var playTilesLength = 7;
 
         var GAME_WAITING_FOR_USERS = 1;
         var GAME_STARTED = 2;
@@ -30,6 +26,7 @@
             history: [],
             winnerUser: {},
             bucketRemaining: 0,
+            playTilesLength: 7,
             registered: false
         }
 
@@ -41,7 +38,7 @@
         that.size = parseInt(that.size);
         that.languagePack = scrabble.langPacks[that.languagePackCode];
 
-
+        that.board = new scrabble.Board();
 
 
 
@@ -141,8 +138,7 @@
 
 
         that.registerUser = function(username) {
-            var user = that.getUser(username);
-            if (!user) {
+            if (that.state = GAME_WAITING_FOR_USERS && !that.getUser(username)) {
                 var index = that.users.push({
                     username: username,
                     tiles: new scrabble.tilesList()
@@ -166,7 +162,7 @@
 
 
 
-        that.board = new scrabble.Board();
+
 
 
 
@@ -182,7 +178,7 @@
             // -------- that.send('game:start', 'Game has started.');
 
             // that.users = shuffle(that.users);
-            that.playUsers = that.users.slice(0);
+            that.playUsers = that.users.slice();
 
 
             // that.users.forEach(function(user) {
@@ -291,7 +287,9 @@
 
             that.board.place(placeholders);
 
-            that.foldCounter = 0;
+            if (that.foldCounter > 0) {
+                that.foldCounter = 0;
+            }
 
 
 
@@ -346,6 +344,7 @@
                 languagePack: that.languagePackCode,
                 winnerUser: that.winnerUser,
                 bucketRemaining: that.bucketRemaining,
+                playTilesLength: that.playTilesLength
 
             }
         }

@@ -1,7 +1,7 @@
 'use strict';
 
-app.controller('UserController', ['$scope', 'UserInterface', 'UserManagement', 'GamesManagerInterface',
-    function($scope, UserInterface, UserManagement, GamesManagerInterface) {
+app.controller('UserController', ['$scope', 'UserInterface', 'UserManagement', 'GamesManagerInterface', '$cookieStore',
+    function($scope, UserInterface, UserManagement, GamesManagerInterface, $cookieStore) {
 
 
 
@@ -25,7 +25,7 @@ app.controller('UserController', ['$scope', 'UserInterface', 'UserManagement', '
             de: 'German'
         };
 
-        $scope.isMe = function(){
+        $scope.isMe = function() {
             return UserManagement.isMe($scope.me.username);
         }
 
@@ -47,12 +47,10 @@ app.controller('UserController', ['$scope', 'UserInterface', 'UserManagement', '
 
 
 
-
-
         UserInterface.onRegistration = function(username) {
 
             $scope.gamesList.forEach(function(game) {
-                game.registered = game.userIsPlaying($scope.me.username); 
+                game.registered = game.userIsPlaying($scope.me.username);
             });
 
             $scope.$apply();
@@ -72,9 +70,9 @@ app.controller('UserController', ['$scope', 'UserInterface', 'UserManagement', '
 
         GamesManagerInterface.onUserRegistration = function() {
             if ($scope.isMe()) {
-                $scope.gamesList.forEach(function(game){
-                   game.registered = game.userIsPlaying($scope.me.username); 
-                }) 
+                $scope.gamesList.forEach(function(game) {
+                    game.registered = game.userIsPlaying($scope.me.username);
+                })
             }
 
             $scope.$apply();
@@ -103,6 +101,16 @@ app.controller('UserController', ['$scope', 'UserInterface', 'UserManagement', '
 
 
         UserInterface.ready(function() {
+
+            UserInterface.login();
+            UserManagement.login();
+
+
+            // GamesManagerInterface.updateAfterLogin();
+             // var token; 
+             // if (token = $cookieStore.get('token')) {
+             //     $scope.$apply();
+             // }
 
             UserInterface.getAllUsers();
             GamesManagerInterface.getAllGames();

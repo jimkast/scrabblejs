@@ -1,8 +1,8 @@
 'use strict';
 
-app.service('UserManagement', [
+app.service('UserManagement', ['$cookieStore',
 
-    function() {
+    function($cookieStore) {
 
         /* ------ MODEL ------- */
         var that = this;
@@ -24,13 +24,20 @@ app.service('UserManagement', [
             that.me.username = username;
         }
 
-        that.login = function(username) {
-            that.me.registered = true;
-            return that.user;
+        that.login = function() {
+            var token = $cookieStore.get('token');
+
+            if (token) {
+                that.me.username = token;
+                that.me.registered = true;
+            }
+
+            return token;
         }
 
         that.logout = function(username) {
             that.me.registered = false;
+            $cookieStore.remove('token');
             delete that.me.username;
         }
 
@@ -69,8 +76,13 @@ app.service('UserManagement', [
         }
 
 
-        that.addUser = function(user) {
-            that.users.push(user);
+        that.addUser = function(username) {
+            that.users.push(username);
+
+            if (that.isMe(username)) {
+                $cookieStore.put('token', username);
+                that.me.registered = true;
+            }
         }
 
         that.removeUser = function(username) {
@@ -83,7 +95,7 @@ app.service('UserManagement', [
 
 
         that.setAllUsers = function(users) {
-            users.forEach(function(user){
+            users.forEach(function(user) {
                 that.users.push(user);
             })
             // that.users = users;

@@ -26,6 +26,10 @@ app.service('SocketService', [
                     console.log('SOCKET OPENED');
                 },
 
+                close: function() {
+                    console.log('SOCKET CLOSED');
+                },
+
                 default: function(data) {
                     console.log(data);
                 }
@@ -63,6 +67,10 @@ app.service('SocketService', [
 
                     if(afterCallback) afterCallback();
                 };
+
+                ws.onclose = function(){
+                    callbackFunctions['error'].call();
+                }
             }
 
 

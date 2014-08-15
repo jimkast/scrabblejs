@@ -12,6 +12,15 @@
             that.direction = getAlignedDirection();
         }
 
+        var wordBonus = function(wordPoints) {
+            return {
+                points: wordPoints + 50,
+                string: '+ 50'
+            }
+        }
+
+        that.playLettersLength = 7;
+
 
         that.getPoints = function() {
             return that.points;
@@ -157,9 +166,13 @@
             var oppDir = oppositeDirection(that.direction);
 
             var word = getWord(that.placeholders[0], that.direction);
+
             if (word.getLength() > 1) {
                 words.push(word);
 
+                if (placeholders.length >= that.playLettersLength) {
+                    word.setCalculationCallback(wordBonus);
+                }
             }
 
             that.placeholders.forEach(function(placeholder) {

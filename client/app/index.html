@@ -27,6 +27,10 @@
     <![endif]-->
 
 
+    <a href="#" onclick="window.open('http://localhost:3000/auth/google', '_blank', 'height=200,width=200')">Sign in with Google</a>
+
+
+
     <div class="" ng-controller="UserController">
 
 
@@ -43,7 +47,7 @@
             </div>
 
             <div ng-show="me.registered">
-                Signed in as user: <b>{{user.username}}</b> 
+                Signed in as user: <b>{{me.username}}</b> 
                 <button type="button" ng-click="unregister()">UNREGISTER</button>
             </div>
 
@@ -99,7 +103,7 @@
                 <!--               <select size="20" ng-options="game.id as game.name for game in gamesList" ng-model="selectedGame" ng-change="selectGame(selectedGame)">
                 </select>
 
- -->
+                 -->
                 <select size="20" ng-model="selectedGame" ng-change="selectGame(selectedGame)">
 
 
@@ -255,6 +259,8 @@
 
 
 
+
+
     <!-- build:js({.tmp,app}) scripts/scripts.js -->
     <script src="../../common/scrabble/utilities/utilities.js"></script>
     <script src="../../common/scrabble/constants/constants.js"></script>
@@ -275,6 +281,8 @@
     <script src="../../common/scrabble/classes/Game.js"></script>
     <script src="../../common/scrabble/classes/GamesManager.js"></script>
     <!-- endbuild -->
+
+
 
 
 
