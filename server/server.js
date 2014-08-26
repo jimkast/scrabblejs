@@ -10,12 +10,30 @@ var app = express();
 
 var http = require('http');
 
+
 var server = http.createServer(app);
 
 
 
 
 
+var allowCrossDomain = function(req, res, next) {
+
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
+
+
+    // intercept OPTIONS method
+    if ('OPTIONS' == req.method) {
+        res.send(200);
+    } else {
+        next();
+    }
+};
+
+
+app.use(allowCrossDomain);
 
 
 var mongoose = require('mongoose');
@@ -46,6 +64,8 @@ app.use(session({
     secret: 'ilovescotchscotchyscotchscotch'
 })); // session secret
 app.use(passport.initialize());
+
+
 app.use(passport.session()); // persistent login sessions
 app.use(flash()); // use connect-flash for flash messages stored in session
 
@@ -61,9 +81,7 @@ require('./app/routes.js')(app, passport); // load our routes and pass in our ap
 
 
 
-
 require('../common/scrabble/scrabble.js');
-
 
 
 
@@ -77,4 +95,7 @@ server.listen(serverPort);
 var manager = new GamesServer();
 manager.listen(server, serverPort);
 
+
+
+// var configAuth = require('./config/auth');
 

@@ -11,6 +11,7 @@
     <title>Scrabble</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width">
+
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
     <!-- build:css styles/vendor.css -->
     <!-- bower:css -->
@@ -19,6 +20,9 @@
     <!-- build:css({.tmp,app}) styles/main.css -->
     <link rel="stylesheet" href="styles/style.css">
     <!-- endbuild -->
+
+
+
 </head>
 
 <body ng-app="ngScrabbleApp">
@@ -26,8 +30,21 @@
       <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
 
+    <!-- <span id="signinButton">
+        <span class="g-signin" data-callback="signinCallback" data-clientid="796534862997-aa70ttf57o1d8fflq9mcus9v8usbamga.apps.googleusercontent.com" data-cookiepolicy="single_host_origin" data-requestvisibleactions="http://schema.org/AddAction" data-scope="https://www.googleapis.com/auth/plus.login">
+        </span>
+    </span> -->
 
-    <a href="#" onclick="window.open('http://localhost:3000/auth/google', '_blank', 'height=200,width=200')">Sign in with Google</a>
+
+    <div ng-controller="AuthController">
+
+        <div id="signinButton">Sign in with googleeee</div>
+
+        <a href="#" onclick="window.open('http://localhost:3000/auth/google', '_blank', 'height=200,width=200')">Sign in with Google</a>
+
+
+
+    </div>
 
 
 
@@ -261,7 +278,7 @@
 
 
 
-    <!-- build:js({.tmp,app}) scripts/scripts.js -->
+    <!-- build:js({.tmp,app}) scripts/library.js -->
     <script src="../../common/scrabble/utilities/utilities.js"></script>
     <script src="../../common/scrabble/constants/constants.js"></script>
 
@@ -299,7 +316,24 @@
 
     <script src="scripts/controllers/UserController.js"></script>
     <script src="scripts/controllers/GameController.js"></script>
+    <script src="scripts/controllers/AuthController.js"></script>
     <!-- endbuild -->
+
+
+
+
+    <script type="text/javascript">
+    (function() {
+        var po = document.createElement('script');
+        po.type = 'text/javascript';
+        po.async = true;
+        po.src = 'https://apis.google.com/js/client:plusone.js';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(po, s);
+    })();
+    </script>
+
+
 
 
 </body>

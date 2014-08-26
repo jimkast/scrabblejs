@@ -1,6 +1,7 @@
 'use strict';
 
 app.service('SocketService', [
+
     function() {
 
         var service = function() {
@@ -11,8 +12,8 @@ app.service('SocketService', [
 
             var afterCallback;
 
-            that.after = function(callback){
-                if(callback) afterCallback = callback;
+            that.after = function(callback) {
+                if (callback) afterCallback = callback;
             }
 
 
@@ -65,10 +66,10 @@ app.service('SocketService', [
                     console.log(responseJSON.event, responseJSON.data, ' <<<--- SOCKET RECEIVED DATA');
                     callback(responseJSON.event, responseJSON.data);
 
-                    if(afterCallback) afterCallback();
+                    if (afterCallback) afterCallback();
                 };
 
-                ws.onclose = function(){
+                ws.onclose = function() {
                     callbackFunctions['error'].call();
                 }
             }
@@ -76,10 +77,12 @@ app.service('SocketService', [
 
             this.send = function(event, data) {
                 // console.log(JSON.stringify(message), 'stringfy');
-                var obj = {event: event};
-                if(data !== undefined){
+                var obj = {
+                    event: event
+                };
+                if (data !== undefined) {
                     obj.data = data;
-                } 
+                }
                 ws.send(JSON.stringify(obj));
                 console.log(event, obj, ' --->>> SENDING DATA TO SOCKET');
             }
@@ -89,8 +92,12 @@ app.service('SocketService', [
                 callbackFunctions[event] = callback;
             }
 
-            this.ajax = function(event, data, callback){
-                
+            this.unbind = function(event) {
+                delete callbackFunctions[event];
+            }
+
+            this.ajax = function(event, data, callback) {
+
             }
         }
 

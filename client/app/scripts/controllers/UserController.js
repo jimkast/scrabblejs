@@ -5,6 +5,24 @@ app.controller('UserController', ['$scope', 'UserInterface', 'UserManagement', '
 
 
 
+
+
+
+
+        var login = function(){
+            
+        }
+
+
+
+
+
+
+
+
+
+
+
         $scope.game = {};
 
         $scope.usersList = UserManagement.users;

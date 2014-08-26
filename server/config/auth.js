@@ -16,10 +16,9 @@ module.exports = {
     },
 
     'googleAuth': {
-        'clientID': '796534862997-aa70ttf57o1d8fflq9mcus9v8usbamga.apps.googleusercontent.com',
-        'clientSecret': '1sP0Mie4xcHz6VMlLJZOUjPO',
-        'callbackURL': 'http://localhost:3000/auth/google/callback'
+        'clientID': '858566725308-g2j5k837l5j9f2t6fs1251r7batdmvhu.apps.googleusercontent.com',
+        'clientSecret': '5e77F8ygr8Fy2Cb7pPusIyhT',
+        'callbackURL': 'http://localhost:3000/oauth2callback'
     }
 
 };
-

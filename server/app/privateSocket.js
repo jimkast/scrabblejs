@@ -102,8 +102,6 @@ var privateSocket = function() {
 
 
 
-
-
     that.on('user:all', function(connection, data) {
         that.send(connection, 'user:all', that.getRaw());
     });
