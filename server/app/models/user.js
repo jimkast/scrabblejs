@@ -44,3 +44,48 @@ userSchema.methods.validPassword = function(password) {
 
 // create the model for users and expose it to our app
 module.exports = mongoose.model('User', userSchema);
+
+
+
+
+
+var userSchema2 = mongoose.Schema({
+
+
+    authType: String,
+
+    username: String,
+    password: String,
+    
+    email: String,
+    image: String,
+
+    name: String,
+
+
+
+
+    local: {
+        email: String,
+        password: String,
+    },
+    facebook: {
+        id: String,
+        token: String,
+        email: String,
+        name: String
+    },
+    twitter: {
+        id: String,
+        token: String,
+        displayName: String,
+        username: String
+    },
+    google: {
+        id: String,
+        token: String,
+        email: String,
+        name: String
+    }
+
+});
